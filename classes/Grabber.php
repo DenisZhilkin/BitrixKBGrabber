@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace local_sandbox;
+namespace BitrixKB;
 
 use DOMDocument;
 use Exception;
@@ -16,9 +16,9 @@ class Grabber
 
     function __construct(string $root)
     {
-        // global $CFG;
-        // $dataRoot = $CFG->dataroot;
-        $dataRoot = '/home/denis/BitrixKBGrabber';
+        global $CFG;
+        $dataRoot = $CFG->dataroot;
+        // $dataRoot = '/home/denis/BitrixKBGrabber';
 
         $this->root = $root;
         $this->destinationFolder = $dataRoot . DIRECTORY_SEPARATOR . static::DESTINATION_DIR;
@@ -61,8 +61,7 @@ class Grabber
         return $html;
     }
 
-    # Creates dir if not exists
-    protected function saveToFile(string $dir, string $file, string $content): void
+    protected function saveToFile(string $dir, string $file, string $href): void
     {
         $full = $this->destinationFolder . DIRECTORY_SEPARATOR . $dir;
         if (!is_dir($full)) {
@@ -73,6 +72,11 @@ class Grabber
 
         $file = $full . DIRECTORY_SEPARATOR . $file;
         if (!file_exists($file)) {
+            $content = file_get_contents($href);
+            if ($content === false) {
+                throw new Exception(__FUNCTION__ . ': Can`t get source file content');
+            }
+            $content = $this->preprocessContent($content);
             file_put_contents($file, $content);
         }
     }
@@ -95,13 +99,7 @@ class Grabber
             $href = $this->root . $href;
         }
         
-        $content = file_get_contents($href);
-        if ($content === false) {
-            throw new Exception(__FUNCTION__ . ': Can`t get source file content');
-        }
-        $content = $this->preprocessContent($content);
-
-        $this->saveToFile($dir, $file, $content);
+        $this->saveToFile($dir, $file, $href);
         
         $localRef = $dir . DIRECTORY_SEPARATOR . $file;
         return $localRef;
@@ -137,7 +135,7 @@ class Grabber
             $localRef = $this->getSource($href);
             $link->setAttribute('href', $localRef);
         }
-        /*
+
         foreach ($dom->getElementsByTagName('script') as $script) {
             if ($src = $script->getAttribute('src')) {
                 $localSrc = $this->getSource($src);
@@ -146,7 +144,7 @@ class Grabber
                 $script->nodeValue = $this->preprocessContent($script->nodeValue);
             }
         }
-        /**/
+
         $file = $this->destinationFolder . DIRECTORY_SEPARATOR . $pageName . '.html';
         if (!$dom->saveHTMLFile($file)) {
             throw new Exception(__FUNCTION__ . ': Can`t save html to file');

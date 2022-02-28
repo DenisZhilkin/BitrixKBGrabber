@@ -1,9 +1,11 @@
 <?php
 
-// require '../../config.php';
+const CLI_SCRIPT = 1;
+
+require '../../config.php';
 require 'classes/Grabber.php';
 
-use local_sandbox\Grabber;
+use BitrixKB\Grabber;
 
 $root = 'https://b24-rgfsgw.bitrix24.ru';
 
