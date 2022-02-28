@@ -95,6 +95,11 @@ class Grabber
             $clean = strstr($path['filename'], '?', true);
             $file = $clean ? $clean : $path['filename'];
         }
+
+        print($href) . PHP_EOL;
+        print($dir)  . PHP_EOL;
+        print($file) . PHP_EOL;
+
         if (ord($href) == 47) { # 47 is /
             $href = $this->root . $href;
         }
@@ -109,8 +114,18 @@ class Grabber
     # rewrite urls
     protected function preprocessContent(string $content): string
     {
-        $content = str_replace("'/bitrix/", "'" . '' . '/bitrix/', $content);
-        $content = str_replace('"/bitrix/', '"' . '' . '/bitrix/', $content);
+        # extract links
+        $links = [];
+        if (!preg_match_all("#'[^\s()<>,]+'#", $content, $links)) {
+            throw new Exception('Can`t extract url from content');
+        }
+        $links = $links[0];
+        # get and save file, rewrite links
+        foreach ($links as $link) {
+            $localLink = $this->getSource($link);
+            $content = str_replace($link, $localLink, $content);
+        }
+
         return $content;
     }
 
