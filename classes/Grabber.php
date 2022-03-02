@@ -77,7 +77,7 @@ class Grabber
             if ($content === false) {
                 // throw new Exception(__FUNCTION__ . ': Can`t get source file content: ' . $href);
                 // pr(__FUNCTION__ . ': Can`t get source file content: ' . $href);
-                print(__FUNCTION__ . ': Can`t get source file content: ' . $href . PHP_EOL);
+                print(__FUNCTION__ . ': file: ' . $file . PHP_EOL);
                 $content = '';
             }
             $content = $this->preprocessContent($content);
@@ -94,7 +94,11 @@ class Grabber
             $path = pathinfo($href);
         }
         $dir = $path['dirname'];
-        $dir = str_replace(['/bitrix/', 'https://'], '', $dir);
+        $dir = str_replace('https://', '', $dir);
+        if (strpos($dir, '/bitrix/') === 0) {
+            $off = strlen('/bitrix/');
+            $dir = substr($dir, $off);
+        }
         if (key_exists('extension', $path)) {
             if  ($path['extension'] == 'php') {
                 return $href;
