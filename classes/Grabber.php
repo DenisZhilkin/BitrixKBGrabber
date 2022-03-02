@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace BitrixKB;
 
-use DOMDocument;
 use DOMComment;
+use DOMDocument;
 use DOMEntityReference;
+use DOMImplementation;
 use DOMText;
 use DOMDocumentType;
 use Exception;
@@ -171,11 +172,24 @@ class Grabber
         }
     }
 
+    public function getPagesList(): array
+    {
+        global $kbName;
+
+        return [];
+    }
+
     public function getPage(string $location, string $pageName): void
     {
         $html = $this->getHTML($location);
-        $dom = new DOMDocument('1.0', 'utf-8');
-        @$dom->loadHTML($html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+
+        $htmlType = DOMImplementation::createDocumentType('html');
+        $dom = DOMImplementation::createDocument('', 'html', $htmlType); // new DOMDocument('1.0', 'utf-8');
+        if ($dom === false) {
+            print('Dom creation failed!' . PHP_EOL);
+        }
+
+        @$dom->loadHTML($html);
 
         # Убираем шапку и подвал от Битрикса
         $body = $dom->getElementsByTagName('body')->item(0);
