@@ -14,18 +14,15 @@ use Exception;
 class Grabber
 {
     # without ending /
-    protected const DESTINATION_DIR = 'Bitrix';
     protected string $root;
     protected string $destinationFolder;
 
     function __construct(string $root)
     {
-        global $CFG;
-        $dataRoot = $CFG->dataroot;
-        // $dataRoot = '/home/denis/BitrixKBGrabber';
+        global $destinationFolder;
 
         $this->root = $root;
-        $this->destinationFolder = $dataRoot . DIRECTORY_SEPARATOR . static::DESTINATION_DIR;
+        $this->destinationFolder = $destinationFolder;
         if (!is_dir($this->destinationFolder)) {
             if (!mkdir($this->destinationFolder, 0777)) {
                 throw new Exception('Can`t create destination folder');
